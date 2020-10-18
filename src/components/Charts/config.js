@@ -20,16 +20,15 @@ export let blueChartOptions = {
   },
   scales: {
     yAxes: [{
-      barPercentage: 1.6,
       gridLines: {
         drawBorder: false,
         color: 'rgba(29,140,248,0.0)',
         zeroLineColor: "transparent",
       },
       ticks: {
-        suggestedMin: 60,
+        suggestedMin: 0,
+        maintainAspectRatio: false,
         suggestedMax: 125,
-        padding: 20,
         fontColor: "#2380f7"
       }
     }],
@@ -63,16 +62,16 @@ export let purpleChartOptions = {
   },
   scales: {
     yAxes: [{
-      barPercentage: 1.6,
+     // barPercentage: 1.6,
       gridLines: {
         drawBorder: false,
         color: 'rgba(29,140,248,0.0)',
         zeroLineColor: "transparent",
       },
       ticks: {
-        suggestedMin: 60,
-        suggestedMax: 125,
-        padding: 20,
+        suggestedMin: 0,
+        suggestedMax: 160,
+        maintainAspectRatio: false,
         fontColor: "#9a9a9a"
       }
     }],
@@ -106,7 +105,7 @@ export let orangeChartOptions = {
   },
   scales: {
     yAxes: [{
-      barPercentage: 1.6,
+    //  barPercentage: 1.6,
       gridLines: {
         drawBorder: false,
         color: 'rgba(29,140,248,0.0)',
@@ -115,7 +114,7 @@ export let orangeChartOptions = {
       ticks: {
         suggestedMin: 50,
         suggestedMax: 110,
-        padding: 20,
+        maintainAspectRatio: false,
         fontColor: "#ff8a76"
       }
     }],
@@ -149,7 +148,7 @@ export let greenChartOptions = {
   },
   scales: {
     yAxes: [{
-      barPercentage: 1.6,
+   //   barPercentage: 1.6,
       gridLines: {
         drawBorder: false,
         color: 'rgba(29,140,248,0.0)',
@@ -199,9 +198,10 @@ export let barChartOptions = {
         zeroLineColor: "transparent",
       },
       ticks: {
-        suggestedMin: 60,
+        suggestedMin: 0,
+        responsive: true,
+        maintainAspectRatio: false,
         suggestedMax: 120,
-        padding: 20,
         fontColor: "#9e9e9e"
       }
     }],

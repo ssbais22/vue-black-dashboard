@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="row">
       <div class="col-12">
         <card type="chart">
@@ -14,30 +13,30 @@
                 <div class="btn-group btn-group-toggle"
                      :class="isRTL ? 'float-left' : 'float-right'"
                      data-toggle="buttons">
-                  <label v-for="(option, index) in bigLineChartCategories"
-                         :key="option"
-                         class="btn btn-sm btn-primary btn-simple"
-                         :class="{active: bigLineChart.activeIndex === index}"
-                         :id="index">
-                    <input type="radio"
-                           @click="initBigChart(index)"
-                           name="options" autocomplete="off"
-                           :checked="bigLineChart.activeIndex === index">
-                    {{option}}
-                  </label>
+                    <select name="products" id="products"  @change="onProductChange($event)"> 
+                     <option :value="option"   :key="option"  v-for="(option) in bigLineChart.products " >  {{option}}</option>
+                    </select>
                 </div>
-              </div>
+              </div>              
             </div>
           </template>
           <div class="chart-area">
-            <line-chart style="height: 100%"
+            <line-chart style="height:400px"
                         ref="bigChart"
                         chart-id="big-line-chart"
                         :chart-data="bigLineChart.chartData"
                         :gradient-colors="bigLineChart.gradientColors"
+                        :options="bigLineChart.options"
                         :gradient-stops="bigLineChart.gradientStops"
                         :extra-options="bigLineChart.extraOptions">
             </line-chart>
+          </div>          
+        </card>     
+      </div>
+      <div class="col-12">        
+        <card class="card" :header-classes="{'text-right': isRTL}">
+          <div class="table-responsive">               
+            <product-table></product-table>
           </div>
         </card>
       </div>
@@ -83,12 +82,13 @@
             <h3 class="card-title"><i class="tim-icons icon-send text-success "></i> 12,100K</h3>
           </template>
           <div class="chart-area">
-            <line-chart style="height: 100%"
-                        chart-id="green-line-chart"
+             <div style="height: 40%">
+            <line-chart  chart-id="green-line-chart"
                         :chart-data="greenLineChart.chartData"
                         :gradient-stops="greenLineChart.gradientStops"
                         :extra-options="greenLineChart.extraOptions">
             </line-chart>
+              </div>
           </div>
         </card>
       </div>
@@ -132,31 +132,29 @@
   import * as chartConfigs from '@/components/Charts/config';
   import TaskList from './Dashboard/TaskList';
   import UserTable from './Dashboard/UserTable';
+  import ProductTable from './Dashboard/ProductTable';
   import config from '@/config';
-
+  import axios from  'axios';
   export default {
     components: {
       LineChart,
       BarChart,
       TaskList,
-      UserTable
+      UserTable,
+      ProductTable
     },
     data() {
       return {
         bigLineChart: {
-          allData: [
-            [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
-            [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
-            [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130]
-          ],
+          products:[],
+          allData: [],
           activeIndex: 0,
           chartData: {
-            datasets: [{ }],
-            labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+            datasets: [],
+            labels: [],
           },
           extraOptions: chartConfigs.purpleChartOptions,
           gradientColors: config.colors.primaryGradient,
-          gradientStops: [1, 0.4, 0],
           categories: []
         },
         purpleLineChart: {
@@ -238,30 +236,100 @@
       }
     },
     methods: {
+      onProductChange(event){
+        let chartData ;
+         var months = [];
+        let allDataSets = [];
+        let colors = ['red',config.colors.primary,'blue','white','grey'];
+        let ref = this.$refs.bigChart;
+        let allMonths = [];
+        let chart = this.bigLineChart;   
+        let product = event.target.value;
+        let recordCount = 0;
+
+          for(var i = 0;i<chart.allData.data.dms.length;i++){
+            var color = colors[recordCount];
+            allDataSets.push({
+              borderColor: color,
+              label: chart.allData.data.dms[i],
+              borderWidth: 2,
+              borderDash: [],
+              borderDashOffset: 0.0,
+              pointBackgroundColor: color,
+              pointBorderColor: 'rgba(255,255,255,0)',
+              pointHoverBackgroundColor: color,
+              pointBorderWidth: 20,
+              pointHoverRadius: 4,
+              pointHoverBorderWidth: 15,
+              pointRadius: 4,
+              data: chart.allData.data.allData[event.target.value][chart.allData.data.dms[i]]
+            });
+            recordCount++;
+          }
+          for(var i = 0;i<chart.allData.data.months.length;i++){
+              allMonths.push(chart.allData.data.months[i]);
+          }
+          chartData = { datasets: allDataSets, labels: allMonths };                   
+          ref.updateGradients(chartData);
+          chart.chartData = chartData;
+          chart.chartData.datasets = allDataSets;
+          chart.chartData.labels = allMonths;
+                          
+            
+      },
       initBigChart(index) {
-        let chartData = {
-          datasets: [{
-            fill: true,
-            borderColor: config.colors.primary,
-            borderWidth: 2,
-            borderDash: [],
-            borderDashOffset: 0.0,
-            pointBackgroundColor: config.colors.primary,
-            pointBorderColor: 'rgba(255,255,255,0)',
-            pointHoverBackgroundColor: config.colors.primary,
-            pointBorderWidth: 20,
-            pointHoverRadius: 4,
-            pointHoverBorderWidth: 15,
-            pointRadius: 4,
-            data: this.bigLineChart.allData[index]
-          }],
-          labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
-        }
-        this.$refs.bigChart.updateGradients(chartData);
-        this.bigLineChart.chartData = chartData;
-        this.bigLineChart.activeIndex = index;
-      }
-    },
+        let chartData ;
+        let allDataSets = [];
+        let colors = ['red',config.colors.primary,'blue','white','grey'];
+        let ref = this.$refs.bigChart;
+        let allMonths = [];
+        let chart = this.bigLineChart;   
+        let product = this.bigLineChartCategories[index];
+        let recordCount = 0;
+
+          axios.get('http://localhost:5001/monthsdata')
+                .then(function (response) {
+                    // handle success
+                    chart.allData = response.data;
+                    chart.products = response.data.data.products;
+                   for(var i = 0;i<response.data.data.dms.length;i++){
+                      var color = colors[recordCount];
+                      allDataSets.push({
+                        borderColor: color,
+                        label: response.data.data.dms[i],
+                        borderWidth: 2,
+                        borderDash: [],
+                        borderDashOffset: 0.0,
+                        pointBackgroundColor: color,
+                        pointBorderColor: 'rgba(255,255,255,0)',
+                        pointHoverBackgroundColor: color,
+                        pointBorderWidth: 20,
+                        pointHoverRadius: 4,
+                        pointHoverBorderWidth: 15,
+                        pointRadius: 4,
+                        data: response.data.data.allData[product][response.data.data.dms[i]]
+                      });
+                      recordCount++;
+                    }
+                    for(var i = 0;i<response.data.data.months.length;i++){
+                        allMonths.push(response.data.data.months[i]);
+                    }
+                   chartData = { datasets: allDataSets, labels: allMonths };                   
+                   ref.updateGradients(chartData);
+                   chart.chartData = chartData;
+                   chart.chartData.datasets = allDataSets;
+                   chart.chartData.labels = allMonths;
+                   chart.activeIndex = index;
+                  
+                }).catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(function () {
+                    // always executed
+                });
+              }
+            },
     mounted() {
       this.i18n = this.$i18n;
       if (this.enableRTL) {

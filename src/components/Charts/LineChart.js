@@ -1,9 +1,37 @@
 import { Line, mixins } from 'vue-chartjs';
-
 export default {
   name: 'line-chart',
   extends: Line,
   mixins: [mixins.reactiveProp],
+  options: {
+    scales: {
+    yAxes: [{
+       gridLines: {
+         drawBorder: false,
+         color: 'rgba(29,140,248,0.0)',
+         zeroLineColor: "transparent",
+       },
+       ticks: {
+         suggestedMin: 0,
+         suggestedMax: 160,
+         maintainAspectRatio: false,
+         fontColor: "#9a9a9a"
+       }
+     }],
+ 
+     xAxes: [{      
+       gridLines: {
+         drawBorder: false,
+         color: 'rgba(225,78,202,0.1)',
+         zeroLineColor: "transparent",
+       },
+       ticks: {
+         padding: 20,
+         fontColor: "#9a9a9a"
+       }
+     }]
+   }
+  },
   props: {
     extraOptions: Object,
     gradientColors: {
@@ -15,12 +43,13 @@ export default {
     },
     gradientStops: {
       type: Array,
-      default: () => [1, 0.4, 0],
+   
       validator: val => {
         return val.length > 2;
       }
     }
   },
+
   data() {
     return {
       ctx: null
@@ -30,19 +59,33 @@ export default {
     updateGradients(chartData) {
       if(!chartData) return;
       const ctx = this.ctx || document.getElementById(this.chartId).getContext('2d');
-      const gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+      const gradientStroke = ctx.createLinearGradient(0, 800, 0, 10);
+      var options = {
+        scales: {
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero:true
+                      },
+                      scaleLabel: {
+                           display: true,
+                           labelString: 'Amount',
+                           fontSize: 20 
+                        }
+                  }]            
+              }  
+      };
 
-      gradientStroke.addColorStop(this.gradientStops[0], this.gradientColors[0]);
-      gradientStroke.addColorStop(this.gradientStops[1], this.gradientColors[1]);
-      gradientStroke.addColorStop(this.gradientStops[2], this.gradientColors[2]);
-      chartData.datasets.forEach(set => {
-        set.backgroundColor = gradientStroke;
+      var myBarChart = new Chart(ctx, {
+        type: 'line',     
+        options: options
       });
+
+    
     }
   },
   mounted() {
     this.$watch('chartData', (newVal, oldVal) => {
-      this.updateGradients(this.chartData);
+     // this.updateGradients(this.chartData);
       if (!oldVal) {
         this.renderChart(
           this.chartData,
